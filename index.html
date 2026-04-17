@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FinConnect — Fintech Word Puzzle</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0f12;
+    --surface: #16181e;
+    --surface-2: #1e2028;
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.18);
+    --text: #f0f0f0;
+    --muted: #7a7f8e;
+    --accent: #c8a84b;
+
+    --cat-a: #1a3a2a; --cat-a-border: #2e7d52; --cat-a-text: #5fcf8a;
+    --cat-b: #1a2a3a; --cat-b-border: #2e5c7d; --cat-b-text: #5ab4f5;
+    --cat-c: #2e1a3a; --cat-c-border: #6a3d9e; --cat-c-text: #b57fe8;
+    --cat-d: #3a2a1a; --cat-d-border: #9e6a2e; --cat-d-text: #f0a94a;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem 4rem;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .logo span { color: var(--accent); }
+
+  .subtitle {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.4rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .instructions {
+    max-width: 460px;
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 1.8rem;
+    padding: 0.8rem 1.2rem;
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+
+  .lives {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1.6rem;
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .pip {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    transition: background 0.3s, transform 0.3s;
+  }
+
+  .pip.lost {
+    background: #333;
+    transform: scale(0.85);
+  }
+
+  .solved-zone {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 8px;
+    min-height: 0;
+  }
+
+  .solved-card {
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    animation: slideIn 0.35s ease;
+  }
+
+  .solved-card.cat-a { background: var(--cat-a); border: 1px solid var(--cat-a-border); }
+  .solved-card.cat-b { background: var(--cat-b); border: 1px solid var(--cat-b-border); }
+  .solved-card.cat-c { background: var(--cat-c); border: 1px solid var(--cat-c-border); }
+  .solved-card.cat-d { background: var(--cat-d); border: 1px solid var(--cat-d-border); }
+
+  .solved-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 500;
+  }
+  .cat-a .solved-label { color: var(--cat-a-text); }
+  .cat-b .solved-label { color: var(--cat-b-text); }
+  .cat-c .solved-label { color: var(--cat-c-text); }
+  .cat-d .solved-label { color: var(--cat-d-text); }
+
+  .solved-words {
+    font-size: 0.8rem;
+    color: var(--text);
+    opacity: 0.85;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    width: 100%;
+    max-width: 480px;
+    margin-bottom: 1.2rem;
+  }
+
+  .tile {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 0.4rem;
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    min-height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+  }
+
+  .tile:hover:not(.selected):not(.removed) {
+    border-color: var(--border-hover);
+    background: var(--surface-2);
+  }
+
+  .tile.selected {
+    background: #2a2600;
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .tile.removed {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .tile.shake {
+    animation: shake 0.45s ease;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 480px;
+    margin-bottom: 1.4rem;
+  }
+
+  button {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    font-weight: 500;
+  }
+
+  button:active { transform: scale(0.98); }
+
+  #submitBtn {
+    background: var(--accent);
+    color: #0e0f12;
+    border: none;
+  }
+
+  #submitBtn:hover { background: #d9bb62; }
+  #submitBtn:disabled { background: #3a3520; color: #6b601e; cursor: not-allowed; transform: none; }
+
+  #clearBtn {
+    background: transparent;
+    color: var(--muted);
+    border: 0.5px solid var(--border);
+  }
+  #clearBtn:hover { border-color: var(--border-hover); color: var(--text); }
+
+  .message {
+    font-size: 0.78rem;
+    text-align: center;
+    min-height: 1.4rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    transition: opacity 0.3s;
+  }
+
+  .message.error { color: #f07070; }
+  .message.success { color: #5fcf8a; }
+  .message.warn { color: var(--accent); }
+
+  .endscreen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    max-width: 460px;
+    width: 100%;
+    text-align: center;
+    margin-top: 1rem;
+  }
+
+  .endscreen.visible { display: flex; }
+
+  .end-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+
+  .end-title.win { color: var(--cat-a-text); }
+  .end-title.lose { color: #f07070; }
+
+  .end-sub {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  #restartBtn {
+    flex: none;
+    width: 200px;
+    background: transparent;
+    color: var(--text);
+    border: 0.5px solid var(--border-hover);
+  }
+  #restartBtn:hover { background: var(--surface-2); }
+
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    15% { transform: translateX(-6px); }
+    35% { transform: translateX(6px); }
+    55% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Fin<span>Connect</span></div>
+  <div class="subtitle">Fintech Word Puzzle</div>
+</header>
+
+<div class="instructions">
+  Find the 4 fintech terms that share a category. Select 4 tiles and hit <strong>Submit</strong>. You have <strong>3 attempts</strong> per round.
+</div>
+
+<div class="lives">
+  <span>Attempts left</span>
+  <div class="pip" id="p1"></div>
+  <div class="pip" id="p2"></div>
+  <div class="pip" id="p3"></div>
+</div>
+
+<div class="solved-zone" id="solvedZone"></div>
+
+<div class="grid" id="grid"></div>
+
+<div class="controls">
+  <button id="clearBtn" onclick="clearSelection()">Clear</button>
+  <button id="submitBtn" onclick="submitGuess()" disabled>Submit</button>
+</div>
+
+<div class="message" id="msg"></div>
+
+<div class="endscreen" id="endscreen">
+  <div class="end-title" id="endTitle"></div>
+  <div class="end-sub" id="endSub"></div>
+  <button id="restartBtn" onclick="initGame()">Play again</button>
+</div>
+
+<script>
+const CATEGORIES = [
+  {
+    id: "cat-a",
+    label: "Digital Payments",
+    hint: "How India moves money in real time",
+    words: ["UPI", "NEFT", "RTGS", "IMPS"]
+  },
+  {
+    id: "cat-b",
+    label: "Cards & Security",
+    hint: "Things you deal with every time you swipe or tap",
+    words: ["OTP", "PIN", "CVV", "VISA"]
+  },
+  {
+    id: "cat-c",
+    label: "Loans & Credit",
+    hint: "What lenders and borrowers talk about",
+    words: ["EMI", "CIBIL", "NPA", "REPO"]
+  },
+  {
+    id: "cat-d",
+    label: "Banking & Compliance",
+    hint: "Everyday banking and regulatory terms",
+    words: ["KYC", "IFSC", "NBFC", "RBI"]
+  }
+];
+
+let tiles = [];
+let selected = [];
+let lives = 3;
+let solvedCats = [];
+let gameOver = false;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function initGame() {
+  lives = 3;
+  solvedCats = [];
+  selected = [];
+  gameOver = false;
+
+  document.getElementById("solvedZone").innerHTML = "";
+  document.getElementById("endscreen").classList.remove("visible");
+  document.getElementById("msg").textContent = "";
+  document.getElementById("msg").className = "message";
+  updatePips();
+
+  const allWords = CATEGORIES.flatMap(c => c.words.map(w => ({ word: w, catId: c.id })));
+  tiles = shuffle(allWords);
+
+  renderGrid();
+  updateSubmitBtn();
+}
+
+function renderGrid() {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  tiles.forEach((t, i) => {
+    const div = document.createElement("div");
+    div.className = "tile" + (solvedCats.includes(t.catId) ? " removed" : "");
+    div.textContent = t.word;
+    div.dataset.index = i;
+    div.onclick = () => toggleTile(i);
+    grid.appendChild(div);
+  });
+}
+
+function toggleTile(idx) {
+  if (gameOver) return;
+  const tile = tiles[idx];
+  if (solvedCats.includes(tile.catId)) return;
+
+  const sel = selected.indexOf(idx);
+  if (sel >= 0) {
+    selected.splice(sel, 1);
+  } else {
+    if (selected.length >= 4) return;
+    selected.push(idx);
+  }
+  refreshTileStyles();
+  updateSubmitBtn();
+}
+
+function refreshTileStyles() {
+  document.querySelectorAll(".tile").forEach(el => {
+    const idx = parseInt(el.dataset.index);
+    el.classList.toggle("selected", selected.includes(idx));
+  });
+}
+
+function updateSubmitBtn() {
+  document.getElementById("submitBtn").disabled = selected.length !== 4 || gameOver;
+}
+
+function clearSelection() {
+  selected = [];
+  refreshTileStyles();
+  updateSubmitBtn();
+  setMsg("", "");
+}
+
+function submitGuess() {
+  if (selected.length !== 4 || gameOver) return;
+
+  const chosenCatIds = selected.map(i => tiles[i].catId);
+  const allSame = chosenCatIds.every(c => c === chosenCatIds[0]);
+
+  if (allSame) {
+    const catId = chosenCatIds[0];
+    const cat = CATEGORIES.find(c => c.id === catId);
+    solvedCats.push(catId);
+
+    showSolvedCard(cat);
+    markRemoved(catId);
+    selected = [];
+    updateSubmitBtn();
+    setMsg("Correct! " + cat.label + " — " + cat.hint, "success");
+
+    if (solvedCats.length === CATEGORIES.length) {
+      setTimeout(() => endGame(true), 700);
+    }
+  } else {
+    lives--;
+    updatePips();
+
+    const els = selected.map(i => document.querySelector(`.tile[data-index="${i}"]`));
+    els.forEach(el => { el.classList.add("shake"); el.addEventListener("animationend", () => el.classList.remove("shake"), { once: true }); });
+
+    if (lives === 0) {
+      setTimeout(() => endGame(false), 600);
+    } else {
+      setMsg("Not quite — " + lives + " attempt" + (lives === 1 ? "" : "s") + " remaining.", "error");
+    }
+    selected = [];
+    refreshTileStyles();
+    updateSubmitBtn();
+  }
+}
+
+function showSolvedCard(cat) {
+  const zone = document.getElementById("solvedZone");
+  const card = document.createElement("div");
+  card.className = "solved-card " + cat.id;
+  card.innerHTML = `<div class="solved-label">${cat.label}</div><div class="solved-words">${cat.words.join(" · ")}</div>`;
+  zone.appendChild(card);
+}
+
+function markRemoved(catId) {
+  document.querySelectorAll(".tile").forEach(el => {
+    const idx = parseInt(el.dataset.index);
+    if (tiles[idx].catId === catId) el.classList.add("removed");
+  });
+}
+
+function updatePips() {
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById("p" + i).classList.toggle("lost", i > lives);
+  }
+}
+
+function setMsg(text, type) {
+  const el = document.getElementById("msg");
+  el.textContent = text;
+  el.className = "message" + (type ? " " + type : "");
+}
+
+function endGame(won) {
+  gameOver = true;
+  updateSubmitBtn();
+  document.getElementById("msg").textContent = "";
+
+  if (!won) {
+    CATEGORIES.filter(c => !solvedCats.includes(c.id)).forEach(c => showSolvedCard(c));
+  }
+
+  const es = document.getElementById("endscreen");
+  const title = document.getElementById("endTitle");
+  const sub = document.getElementById("endSub");
+
+  if (won) {
+    title.textContent = "Portfolio complete.";
+    title.className = "end-title win";
+    sub.textContent = "You identified all four fintech categories. Strong fundamentals.";
+  } else {
+    title.textContent = "Market closed.";
+    title.className = "end-title lose";
+    sub.textContent = "You ran out of attempts. The categories have been revealed above.";
+  }
+
+  es.classList.add("visible");
+}
+
+initGame();
+</script>
+</body>
+</html>
