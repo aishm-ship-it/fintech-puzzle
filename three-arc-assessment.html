@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Three Arc Self-Assessment</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #ffffff; --bg2: #f5f5f3; --bg3: #ebebea;
+    --text: #1a1a1a; --text2: #6b6b68; --text3: #9e9e9b;
+    --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.22);
+    --danger-bg: #fcebeb; --danger-text: #a32d2d;
+    --radius: 12px; --radius-sm: 8px;
+    --purple: #534AB7; --purple-light: #EEEDFE;
+    --teal: #1D9E75; --teal-light: #E1F5EE;
+    --coral: #D85A30; --coral-light: #FAECE7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1b; --bg2: #252524; --bg3: #2e2e2d;
+      --text: #f0efea; --text2: #a0a09c; --text3: #6b6b68;
+      --border: rgba(255,255,255,0.12); --border2: rgba(255,255,255,0.22);
+      --danger-bg: #2a1212; --danger-text: #f09595;
+      --purple: #9F98E8; --purple-light: #26215C;
+      --teal: #5DCAA5; --teal-light: #04342C;
+      --coral: #F0997B; --coral-light: #4A1B0C;
+    }
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 16px; line-height: 1.5; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+  .wrap-wide { max-width: 660px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  label { font-size: 14px; color: var(--text2); display: block; margin-bottom: 6px; }
+  input[type=text], input[type=email] {
+    width: 100%; padding: 10px 14px; font-size: 15px;
+    border: 0.5px solid var(--border2); border-radius: var(--radius-sm);
+    background: var(--bg); color: var(--text); outline: none;
+    transition: border-color .15s;
+  }
+  input:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(83,74,183,0.15); }
+  button {
+    cursor: pointer; font-size: 15px; font-weight: 500;
+    padding: 11px 20px; border-radius: var(--radius-sm);
+    border: 0.5px solid var(--border2);
+    background: var(--bg); color: var(--text);
+    transition: background .12s, transform .1s;
+  }
+  button:hover { background: var(--bg2); }
+  button:active { transform: scale(0.98); }
+  button.primary { background: var(--purple); color: #fff; border-color: var(--purple); }
+  button.primary:hover { opacity: 0.92; background: var(--purple); }
+  .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--text3); margin-bottom: 1.25rem; }
+  h1 { font-size: 22px; font-weight: 600; margin-bottom: 0.5rem; }
+  h2 { font-size: 18px; font-weight: 600; margin-bottom: 0.5rem; }
+  .subtext { font-size: 15px; color: var(--text2); line-height: 1.65; margin-bottom: 2rem; }
+  .error { font-size: 13px; color: var(--danger-text); margin-top: 4px; }
+  .info-box { background: var(--bg2); border-radius: var(--radius-sm); padding: .7rem 1rem; font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 1.5rem; }
+  .prog-bar { height: 3px; background: var(--bg3); border-radius: 2px; margin-bottom: 1.75rem; overflow: hidden; }
+  .prog-fill { height: 100%; background: var(--purple); border-radius: 2px; transition: width .25s; }
+  .prog-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text3); margin-bottom: .4rem; }
+  .arc-hdr { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; margin: 2rem 0 .75rem; padding-bottom: .5rem; border-bottom: 0.5px solid var(--border); }
+  .qcard { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: .75rem; transition: border-color .15s; }
+  .qcard.flag { border-color: var(--coral); }
+  .qnum { font-size: 12px; font-weight: 600; color: var(--text3); margin-bottom: 8px; }
+  .qtext { font-size: 15px; line-height: 1.65; color: var(--text); margin-bottom: 18px; }
+  .scale-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .scale-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 0.5px solid var(--border2); background: var(--bg);
+    color: var(--text); font-size: 15px; font-weight: 400;
+    cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .12s, border-color .12s, color .12s, transform .1s;
+  }
+  .scale-btn:hover { background: var(--bg2); border-color: var(--border2); }
+  .scale-btn:active { transform: scale(0.95); }
+  .scale-btn.sel { background: var(--purple); border-color: var(--purple); color: #fff; font-weight: 600; }
+  .scale-lbl { font-size: 13px; color: var(--text3); margin-left: 4px; }
+  .res-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+  .res-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.1rem; text-align: center; }
+  .res-arc { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 8px; }
+  .res-score { font-size: 34px; font-weight: 600; margin-bottom: 2px; line-height: 1; }
+  .res-of { font-size: 11px; color: var(--text3); }
+  .chart-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
+  .chart-legend { display: flex; justify-content: center; gap: 20px; margin-top: 1rem; font-size: 12px; color: var(--text2); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 4px; }
+  .status-line { text-align: center; font-size: 14px; color: var(--text2); margin-bottom: .75rem; }
+  .footer-note { text-align: center; font-size: 13px; color: var(--text3); }
+  .check-circle { width: 52px; height: 52px; border-radius: 50%; background: var(--teal-light); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; }
+</style>
+</head>
+<body>
+
+<!-- LANDING -->
+<div id="s-land" class="screen active">
+  <div class="wrap">
+    <p class="eyebrow">Three Arc Framework</p>
+    <h1>How are you showing up as an AI-era leader?</h1>
+    <p class="subtext">24 statements across three arcs. Rate yourself honestly — this is for your growth, not for grading.</p>
+    <div style="margin-bottom:1rem;">
+      <label for="inp-name">Your name</label>
+      <input type="text" id="inp-name" placeholder="First name">
+    </div>
+    <div style="margin-bottom:0.4rem;">
+      <label for="inp-email">Your email</label>
+      <input type="email" id="inp-email" placeholder="you@company.com">
+    </div>
+    <p id="err-email" class="error" style="display:none;margin-bottom:.75rem;">Please enter a valid email address.</p>
+    <div style="margin-bottom:1.5rem;"></div>
+    <button class="primary" style="width:100%;padding:13px;" id="btn-start" onclick="handleStart()">Begin assessment</button>
+    <p id="land-loading" style="display:none;text-align:center;font-size:14px;color:var(--text2);margin-top:1rem;">Checking your details…</p>
+  </div>
+</div>
+
+<!-- ALREADY DONE -->
+<div id="s-done" class="screen">
+  <div class="wrap" style="text-align:center;">
+    <div class="check-circle">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 11l5 5 9-9" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h2>You've already completed this assessment</h2>
+    <p class="subtext" style="margin-bottom:2rem;">Submitted on <strong id="prev-date"></strong>.</p>
+    <button class="primary" style="width:100%;padding:13px;" onclick="loadExisting()">View my results</button>
+  </div>
+</div>
+
+<!-- QUESTIONS -->
+<div id="s-qs" class="screen">
+  <div class="wrap-wide">
+    <div class="prog-meta">
+      <span class="eyebrow" style="margin:0;">Three Arc Self-Assessment</span>
+      <span id="prog-txt" style="font-size:12px;color:var(--text3);"></span>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="info-box">
+      <strong style="color:var(--text);font-weight:600;">Scale —</strong>
+      1 = not me yet &nbsp;·&nbsp; 2 = started, inconsistent &nbsp;·&nbsp; 3 = sometimes &nbsp;·&nbsp; 4 = most of the time &nbsp;·&nbsp; 5 = consistently, authentically me
+    </div>
+    <div id="qs-wrap"></div>
+    <div id="err-submit" style="display:none;padding:.75rem 1rem;background:var(--danger-bg);border-radius:var(--radius-sm);font-size:14px;color:var(--danger-text);margin-top:1rem;">
+      Please answer all 24 questions before submitting.
+    </div>
+    <button class="primary" style="width:100%;padding:13px;margin-top:1.25rem;" onclick="handleSubmit()">Submit assessment</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="s-res" class="screen">
+  <div class="wrap-wide">
+    <p class="eyebrow">Your results</p>
+    <h1 id="res-name"></h1>
+    <p class="subtext">Here's how you score across the three arcs.</p>
+    <div class="res-grid">
+      <div class="res-card">
+        <p class="res-arc" style="color:var(--purple);">The Explorer</p>
+        <p class="res-score" id="sc1" style="color:var(--purple);"></p>
+        <p class="res-of">out of 40</p>
+      </div>
+      <div class="res-card">
+        <p class="res-arc" style="color:var(--teal);">The Multiplier</p>
+        <p class="res-score" id="sc2" style="color:var(--teal);"></p>
+        <p class="res-of">out of 40</p>
+      </div>
+      <div class="res-card">
+        <p class="res-arc" style="color:var(--coral);">The Architect</p>
+        <p class="res-score" id="sc3" style="color:var(--coral);"></p>
+        <p class="res-of">out of 40</p>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div style="position:relative;width:100%;height:340px;">
+        <canvas id="radar" role="img" aria-label="Radar chart showing scores across Explorer, Multiplier, and Architect arcs, each out of 40.">Arc score visualization.</canvas>
+      </div>
+      <div class="chart-legend">
+        <span><span class="legend-dot" style="background:#534AB7;"></span>Explorer</span>
+        <span><span class="legend-dot" style="background:#1D9E75;"></span>Multiplier</span>
+        <span><span class="legend-dot" style="background:#D85A30;"></span>Architect</span>
+      </div>
+    </div>
+    <p id="email-status" class="status-line"></p>
+    <p class="footer-note">Your results are saved — return any time and enter your email to retrieve them.</p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>
+
+// ── EmailJS config — fill these in before distributing ──────────────────────
+const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';
+const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
+const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';
+// ────────────────────────────────────────────────────────────────────────────
+
+const SCALE_LABELS = ['','Not me yet','Started, inconsistent','Sometimes','Most of the time','Consistently, authentically me'];
+
+const ARCS = [
+  { label: 'Arc 1 — The Explorer',   color: '#534AB7', start: 0,  end: 8  },
+  { label: 'Arc 2 — The Multiplier', color: '#1D9E75', start: 8,  end: 16 },
+  { label: 'Arc 3 — The Architect',  color: '#D85A30', start: 16, end: 24 },
+];
+
+const QS = [
+  "When I encounter something new — a tool, an idea, a way of working — my first instinct is to try it, not read about it first.",
+  "In the last 30 days, I have used an AI tool to do something I actually needed done — not a demo, not a test, something real.",
+  "I can describe at least one moment where something AI produced genuinely surprised me — where the output was better, stranger, or more useful than I expected.",
+  "When I don't know how to do something, I am comfortable sitting in that not-knowing long enough to figure it out — I don't immediately look for the expert.",
+  "I have spent time with AI tools outside of work — for personal curiosity, creativity, or just to see what happens — not just for professional tasks.",
+  "When an AI output disappoints me or gets something wrong, my response is to iterate and try again — not to conclude that the tool doesn't work.",
+  "I could explain to a sceptical colleague — in plain English, without jargon — what a large language model actually does and why it produces the outputs it does.",
+  "In the last 3 months, I have deliberately learned something about AI — a new tool, a technique, a capability — by doing rather than by being told or trained.",
+  "In my regular 1:1s and team conversations, I ask about what people have tried and experimented with — not just what they have delivered.",
+  "My team has heard me say — in explicit words — that they have permission to experiment, make mistakes, and share what they learned. Not implied. Actually said.",
+  "When someone on my team expresses fear or anxiety about change, I can sit with that discomfort without immediately trying to fix it or reassure them out of it.",
+  "The people I lead would say that I model the behaviours I ask of them — that I don't just talk about things, I visibly do them.",
+  "I actively create space in my team's time and calendar for learning, experimentation, and reflection — not just delivery. This shows up in how I plan our work, not just what I say.",
+  "I can tell the difference between team members who are excited about change, those who are anxious, and those who are quietly resistant — and I engage each group differently.",
+  "In the last 6 months, I have changed something concrete about how my team works — a meeting format, a process, a way of making decisions — not just talked about changing it.",
+  "People who work with me would say I ask more questions than I give answers — especially in areas where I have deep expertise.",
+  "I can name two or three specific workflows in my function that AI will fundamentally change in the next 24 months — and I have already started thinking about what that means for my team.",
+  "When I think about any significant initiative in my function, I can articulate which P&L lever it moves — revenue, cost, risk, or retention — and roughly how much.",
+  "The AI roadmap for my function is something I own and drive. I have not handed it to IT, a central transformation team, or a data science group to figure out.",
+  "I know enough about the data in my domain — where it lives, how clean it is, what's missing — to have a credible conversation with an engineer about what is technically possible.",
+  "Before committing resource to any initiative in my function, I consistently ask: 'What does the customer or merchant actually experience today?' — not just 'what does our data show?'",
+  "I attend — or would attend — working sessions, sprint reviews, or demos for major initiatives in my function rather than reading summary reports and making decisions from a distance.",
+  "I can describe what a good pilot looks like for any initiative in my function: what the success metric is, who owns it, what it would take to scale, and what would cause me to kill it.",
+  "In the last 3 months, I have pushed back on or challenged a recommendation from my technical, data, or product team — not just accepted it because they are the experts."
+];
+
+// In-memory storage (falls back if window.storage unavailable)
+const store = {};
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function skey(email) { return 'arc:' + email.trim().toLowerCase(); }
+
+let userEmail = '', userName = '', answers = new Array(24).fill(0), cachedResult = null;
+
+async function storeGet(k) {
+  if (window.storage) {
+    try { return await window.storage.get(k); } catch(e) { return null; }
+  }
+  return store[k] ? { value: store[k] } : null;
+}
+
+async function storeSet(k, v) {
+  if (window.storage) {
+    try { await window.storage.set(k, v, false); } catch(e) {}
+  } else {
+    store[k] = v;
+  }
+}
+
+async function handleStart() {
+  const name = document.getElementById('inp-name').value.trim();
+  const email = document.getElementById('inp-email').value.trim();
+  const errEl = document.getElementById('err-email');
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errEl.style.display = 'block'; return;
+  }
+  errEl.style.display = 'none';
+  userEmail = email;
+  userName = name || email.split('@')[0];
+  document.getElementById('btn-start').disabled = true;
+  document.getElementById('land-loading').style.display = 'block';
+  const existing = await storeGet(skey(email));
+  if (existing) {
+    cachedResult = JSON.parse(existing.value);
+    const d = new Date(cachedResult.submittedAt);
+    document.getElementById('prev-date').textContent = d.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+    show('s-done');
+  } else {
+    buildQs();
+    show('s-qs');
+  }
+}
+
+function buildQs() {
+  let h = '';
+  ARCS.forEach(arc => {
+    h += `<div class="arc-hdr" style="color:${arc.color}">${arc.label}</div>`;
+    for (let i = arc.start; i < arc.end; i++) {
+      h += `<div class="qcard" id="qc${i}">
+        <p class="qnum">Q${i+1}</p>
+        <p class="qtext">${QS[i]}</p>
+        <div class="scale-row">
+          ${[1,2,3,4,5].map(s => `<button class="scale-btn" id="b${i}-${s}" onclick="pick(${i},${s})" title="${SCALE_LABELS[s]}">${s}</button>`).join('')}
+          <span class="scale-lbl" id="lbl${i}"></span>
+        </div>
+      </div>`;
+    }
+  });
+  document.getElementById('qs-wrap').innerHTML = h;
+}
+
+function pick(qi, sc) {
+  answers[qi] = sc;
+  for (let s = 1; s <= 5; s++) {
+    const b = document.getElementById(`b${qi}-${s}`);
+    if (b) b.classList.toggle('sel', s === sc);
+  }
+  const l = document.getElementById(`lbl${qi}`);
+  if (l) l.textContent = SCALE_LABELS[sc];
+  document.getElementById(`qc${qi}`).classList.remove('flag');
+  const done = answers.filter(a => a > 0).length;
+  document.getElementById('prog-fill').style.width = Math.round(done / 24 * 100) + '%';
+  document.getElementById('prog-txt').textContent = `${done} of 24`;
+}
+
+async function handleSubmit() {
+  const firstBlank = answers.findIndex(a => a === 0);
+  if (firstBlank !== -1) {
+    document.getElementById('err-submit').style.display = 'block';
+    document.getElementById(`qc${firstBlank}`).classList.add('flag');
+    document.getElementById(`qc${firstBlank}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  document.getElementById('err-submit').style.display = 'none';
+  const arcScores = ARCS.map(arc => answers.slice(arc.start, arc.end).reduce((s, v) => s + v, 0));
+  const result = { name: userName, email: userEmail, answers: [...answers], arcScores, submittedAt: new Date().toISOString() };
+  await storeSet(skey(userEmail), JSON.stringify(result));
+  show('s-res');
+  renderResults(result);
+  sendEmail(result);
+}
+
+function loadExisting() { show('s-res'); renderResults(cachedResult); }
+
+function renderResults(r) {
+  document.getElementById('res-name').textContent = 'Your results, ' + r.name;
+  document.getElementById('sc1').textContent = r.arcScores[0];
+  document.getElementById('sc2').textContent = r.arcScores[1];
+  document.getElementById('sc3').textContent = r.arcScores[2];
+  const isDark = matchMedia('(prefers-color-scheme:dark)').matches;
+  const gc = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
+  const tc = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.35)';
+  const lc = isDark ? 'rgba(255,255,255,0.8)' : '#222';
+  new Chart(document.getElementById('radar').getContext('2d'), {
+    type: 'radar',
+    data: {
+      labels: ['The Explorer', 'The Multiplier', 'The Architect'],
+      datasets: [{
+        data: r.arcScores,
+        backgroundColor: 'rgba(83,74,183,0.12)',
+        borderColor: '#534AB7',
+        borderWidth: 2,
+        pointBackgroundColor: ['#534AB7','#1D9E75','#D85A30'],
+        pointBorderColor: isDark ? '#1c1c1b' : '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 7,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => `Score: ${ctx.raw} / 40` } }
+      },
+      scales: {
+        r: {
+          min: 0, max: 40,
+          ticks: { stepSize: 10, font: { size: 11 }, color: tc, backdropColor: 'transparent' },
+          grid: { color: gc },
+          angleLines: { color: gc },
+          pointLabels: { font: { size: 14, weight: '600' }, color: lc }
+        }
+      }
+    }
+  });
+}
+
+async function sendEmail(r) {
+  const st = document.getElementById('email-status');
+  if (EMAILJS_PUBLIC_KEY === 'YOUR_PUBLIC_KEY') {
+    st.textContent = 'Results saved. (EmailJS not yet configured — no email sent.)';
+    return;
+  }
+  try {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_name: r.name,
+      to_email: r.email,
+      arc1_score: r.arcScores[0],
+      arc2_score: r.arcScores[1],
+      arc3_score: r.arcScores[2],
+      submitted_date: new Date(r.submittedAt).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' })
+    });
+    st.textContent = 'Results sent to ' + r.email;
+  } catch (e) {
+    st.textContent = 'Results saved — email could not be delivered.';
+    console.error('EmailJS error:', e);
+  }
+}
+
+</script>
+</body>
+</html>
