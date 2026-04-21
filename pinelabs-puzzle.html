@@ -29,16 +29,13 @@
     color: var(--text);
     font-family: 'DM Mono', monospace;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: flex; flex-direction: column; align-items: center;
     padding: 2rem 1rem 4rem;
   }
 
   /* ── Email Gate ── */
   #emailGate {
-    position: fixed; inset: 0;
-    background: var(--bg);
+    position: fixed; inset: 0; background: var(--bg);
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     padding: 2rem 1.5rem; z-index: 100;
@@ -56,6 +53,20 @@
   #startBtn:hover:not(:disabled) { background: #d9bb62; }
   #startBtn:disabled { opacity: 0.45; cursor: not-allowed; }
   .gate-error { font-size: 0.72rem; color: #f07070; min-height: 1rem; line-height: 1.5; }
+
+  /* ── Already Played Screen ── */
+  #alreadyPlayed {
+    display: none; position: fixed; inset: 0; background: var(--bg);
+    flex-direction: column; align-items: center; justify-content: center;
+    padding: 2rem 1.5rem; z-index: 100; text-align: center; gap: 1rem;
+  }
+  #alreadyPlayed .ap-logo { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.3rem; }
+  #alreadyPlayed .ap-logo span { color: var(--accent); }
+  #alreadyPlayed .ap-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.8rem 2rem; width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 0.8rem; align-items: center; }
+  #alreadyPlayed .ap-icon { font-size: 2rem; }
+  #alreadyPlayed .ap-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--text); }
+  #alreadyPlayed .ap-desc { font-size: 0.74rem; color: var(--muted); line-height: 1.7; }
+  #alreadyPlayed .ap-email { font-size: 0.74rem; color: var(--accent); }
 
   /* ── Game ── */
   #gameWrap { display: none; width: 100%; flex-direction: column; align-items: center; }
@@ -99,8 +110,6 @@
   .message.error  { color: #f07070; }
   .message.success{ color: #5fcf8a; }
   .message.warn   { color: var(--accent); }
-
-  /* ── End Screen ── */
   .endscreen { display: none; flex-direction: column; align-items: center; gap: 1rem; max-width: 460px; width: 100%; text-align: center; margin-top: 1rem; }
   .endscreen.visible { display: flex; }
   .end-title { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 700; }
@@ -139,6 +148,17 @@
   </div>
 </div>
 
+<!-- Already Played -->
+<div id="alreadyPlayed">
+  <div class="ap-logo">Pine<span>Labs</span></div>
+  <div class="ap-card">
+    <div class="ap-icon">🎯</div>
+    <div class="ap-title">You've already played!</div>
+    <div class="ap-email" id="apEmail"></div>
+    <div class="ap-desc">Each email can only participate once. Your score has already been recorded. Thanks for playing!</div>
+  </div>
+</div>
+
 <!-- Game -->
 <div id="gameWrap">
   <header>
@@ -146,28 +166,22 @@
     <div class="subtitle">Product Knowledge Quiz</div>
     <div class="player-badge" id="playerBadge"></div>
   </header>
-
   <div class="instructions">
     Find the 4 terms that belong to the same Pine Labs category. Select 4 tiles and hit <strong>Submit</strong>. You have <strong>3 attempts</strong> per round.
   </div>
-
   <div class="lives">
     <span>Attempts left</span>
     <div class="pip" id="p1"></div>
     <div class="pip" id="p2"></div>
     <div class="pip" id="p3"></div>
   </div>
-
   <div class="solved-zone" id="solvedZone"></div>
   <div class="grid" id="grid"></div>
-
   <div class="controls">
     <button id="clearBtn" onclick="clearSelection()">Clear</button>
     <button id="submitBtn" onclick="submitGuess()" disabled>Submit</button>
   </div>
-
   <div class="message" id="msg"></div>
-
   <div class="endscreen" id="endscreen">
     <div class="end-title"  id="endTitle"></div>
     <div class="end-score"  id="endScore"></div>
@@ -179,19 +193,37 @@
 </div>
 
 <script>
-const SHEET_URL = "https://script.google.com/macros/s/AKfycby9rqhSnCsEGirNBd1r7sBhC7ETMLnLg_obF-Wm1MduI-_4GpYbgXBtf_y68U8ifaKM/exec";
+const SHEET_URL   = "https://script.google.com/macros/s/AKfycby9rqhSnCsEGirNBd1r7sBhC7ETMLnLg_obF-Wm1MduI-_4GpYbgXBtf_y68U8ifaKM/exec";
+const LS_KEY      = "pinelabs_quiz_played";   // localStorage key
 
 const CATEGORIES = [
-  { id:"cat-a", label:"Pine Labs POS Devices",       hint:"The 4 named Android POS terminals in Pine Labs' device lineup",          words:["TOUCH","GO","DUO","HUB"] },
-  { id:"cat-b", label:"Open Loop Card Use Cases",    hint:"Expense categories Pine Labs Prepaid open loop cards are issued for",    words:["GIFT","MEAL","TRAVEL","FUEL"] },
-  { id:"cat-c", label:"Industries Pine Labs Serves", hint:"Key merchant sectors across Pine Labs' customer base",                   words:["RETAIL","PHARMA","AIRLINE","HOTEL"] },
-  { id:"cat-d", label:"Card Networks on Pine Labs",  hint:"Payment networks accepted across Pine Labs terminals",                   words:["VISA","MASTERCARD","RUPAY","AMEX"] }
+  { id:"cat-a", label:"Pine Labs POS Devices",       hint:"The 4 named Android POS terminals in Pine Labs' device lineup",        words:["TOUCH","GO","DUO","HUB"] },
+  { id:"cat-b", label:"Open Loop Card Use Cases",    hint:"Expense categories Pine Labs Prepaid open loop cards are issued for",  words:["GIFT","MEAL","TRAVEL","FUEL"] },
+  { id:"cat-c", label:"Industries Pine Labs Serves", hint:"Key merchant sectors across Pine Labs' customer base",                 words:["RETAIL","PHARMA","AIRLINE","HOTEL"] },
+  { id:"cat-d", label:"Card Networks on Pine Labs",  hint:"Payment networks accepted across Pine Labs terminals",                 words:["VISA","MASTERCARD","RUPAY","AMEX"] }
 ];
 
 let tiles=[], selected=[], lives=3, solvedCats=[], gameOver=false, playerEmail="";
 
+// ── On page load: check localStorage first ──────────────────────────────────
+(function checkOnLoad() {
+  const stored = localStorage.getItem(LS_KEY);
+  if (stored) {
+    showAlreadyPlayed(stored);
+  }
+})();
+
+function showAlreadyPlayed(email) {
+  document.getElementById("emailGate").style.display    = "none";
+  document.getElementById("gameWrap").style.display     = "none";
+  document.getElementById("alreadyPlayed").style.display = "flex";
+  document.getElementById("apEmail").textContent        = email;
+}
+
 // ── Email Gate ──────────────────────────────────────────────────────────────
-document.getElementById("emailInput").addEventListener("keydown", e => { if (e.key==="Enter") handleStart(); });
+document.getElementById("emailInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") handleStart();
+});
 
 async function handleStart() {
   const errEl = document.getElementById("gateError");
@@ -204,20 +236,27 @@ async function handleStart() {
     return;
   }
 
-  btn.disabled = true;
+  btn.disabled    = true;
   btn.textContent = "Checking…";
 
+  // 1. Check localStorage first (instant, covers refresh scenario)
+  if (localStorage.getItem(LS_KEY) === email) {
+    showAlreadyPlayed(email);
+    return;
+  }
+
+  // 2. Check server-side (covers different devices / cleared cache)
   try {
     const res  = await fetch(SHEET_URL + "?email=" + encodeURIComponent(email));
     const json = await res.json();
     if (json.exists) {
-      errEl.textContent = "This email has already played. Each email can only participate once.";
-      btn.disabled = false;
-      btn.textContent = "Start Quiz →";
+      // Also write to localStorage so future refreshes are instant
+      localStorage.setItem(LS_KEY, email);
+      showAlreadyPlayed(email);
       return;
     }
   } catch (_) {
-    // Network error: allow through to avoid blocking legitimate users
+    // Network error — allow through, don't block the user
   }
 
   playerEmail = email;
@@ -227,12 +266,24 @@ async function handleStart() {
   initGame();
 }
 
+// ── Mark played (called as soon as game ends) ───────────────────────────────
+function markPlayed() {
+  localStorage.setItem(LS_KEY, playerEmail);
+}
+
 // ── Score Save ──────────────────────────────────────────────────────────────
 function saveScore(won) {
   fetch(SHEET_URL, {
-    method: "POST", mode: "no-cors",
+    method:  "POST",
+    mode:    "no-cors",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: playerEmail, score: solvedCats.length, attempts_used: 3 - lives, completed: won, puzzle: "pinelabs" })
+    body: JSON.stringify({
+      email:         playerEmail,
+      score:         solvedCats.length,
+      attempts_used: 3 - lives,
+      completed:     won,
+      puzzle:        "pinelabs"
+    })
   }).catch(e => console.error("Score save failed:", e));
 }
 
@@ -326,12 +377,16 @@ function setMsg(text,type){
 function endGame(won) {
   gameOver=true; updateSubmitBtn();
   document.getElementById("msg").textContent="";
+
+  // Lock the email immediately — before save, so refresh can't sneak past
+  markPlayed();
   saveScore(won);
+
   if(!won)CATEGORIES.filter(c=>!solvedCats.includes(c.id)).forEach(showSolvedCard);
   const title=document.getElementById("endTitle");
   const score=document.getElementById("endScore");
-  if(won){title.textContent="Full marks!"; title.className="end-title win"; score.innerHTML="You solved all <span>4 / 4</span> categories.";}
-  else   {title.textContent="Better luck next time."; title.className="end-title lose"; score.innerHTML="You solved <span>"+solvedCats.length+" / 4</span> categories.";}
+  if(won){ title.textContent="Full marks!"; title.className="end-title win"; score.innerHTML="You solved all <span>4 / 4</span> categories."; }
+  else   { title.textContent="Better luck next time."; title.className="end-title lose"; score.innerHTML="You solved <span>"+solvedCats.length+" / 4</span> categories."; }
   document.getElementById("endscreen").classList.add("visible");
 }
 </script>
