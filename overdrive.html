@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OVERDRIVE — Pine Labs Leadership Offsite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary-orange: #FF4D13;
+    --primary-lime: #d0f255;
+    --secondary-violet: #4B00FF;
+    --secondary-black: #1a1a1a;
+    --white: #ffffff;
+    --off-white: #f5f5f0;
+    --dim: rgba(245, 245, 240, 0.55);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: var(--secondary-black);
+    color: var(--off-white);
+    font-family: 'Oswald', sans-serif;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(75, 0, 255, 0.25), transparent 50%),
+      radial-gradient(ellipse at 85% 85%, rgba(255, 77, 19, 0.18), transparent 55%),
+      repeating-linear-gradient(0deg, transparent 0 2px, rgba(255,255,255,0.015) 2px 3px),
+      var(--secondary-black);
+    position: relative;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    z-index: 1;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.4 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  /* Ticker tape at top */
+  .ticker {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 34px;
+    background: var(--primary-orange);
+    color: var(--secondary-black);
+    overflow: hidden;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid var(--secondary-black);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+  }
+  .ticker-track {
+    display: inline-flex;
+    white-space: nowrap;
+    animation: ticker-scroll 45s linear infinite;
+    padding-left: 100%;
+  }
+  .ticker-track span {
+    padding: 0 28px;
+    display: inline-block;
+  }
+  .ticker-track span::before {
+    content: '◆ ';
+    color: var(--secondary-violet);
+  }
+  @keyframes ticker-scroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* Stadium "LIVE" indicator */
+  .live-badge {
+    position: fixed;
+    top: 46px;
+    right: 20px;
+    z-index: 50;
+    background: #c40000;
+    color: white;
+    padding: 4px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 0 20px rgba(196, 0, 0, 0.5);
+  }
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    background: white;
+    border-radius: 50%;
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  /* Container */
+  .game-wrap {
+    position: relative;
+    z-index: 10;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 70px 28px 40px;
+    min-height: 100vh;
+  }
+
+  /* Screen transitions */
+  .screen { display: none; }
+  .screen.active { display: block; animation: screen-in 0.45s cubic-bezier(0.22, 1, 0.36, 1); }
+
+  @keyframes screen-in {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== START SCREEN ===== */
+  .hero {
+    text-align: center;
+    padding-top: 40px;
+  }
+
+  .presenter-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--primary-lime);
+    margin-bottom: 24px;
+  }
+  .presenter-line::before,
+  .presenter-line::after {
+    content: '';
+    width: 40px;
+    height: 1px;
+    background: var(--primary-lime);
+  }
+
+  .title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(90px, 17vw, 220px);
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+    color: var(--off-white);
+    position: relative;
+    display: inline-block;
+    text-shadow:
+      5px 5px 0 var(--secondary-violet),
+      10px 10px 0 var(--primary-orange);
+  }
+
+  .title .strike {
+    position: absolute;
+    top: 45%;
+    left: -8%;
+    right: -8%;
+    height: 14px;
+    background: var(--primary-lime);
+    transform: rotate(-2deg);
+    mix-blend-mode: difference;
+  }
+
+  .tagline {
+    margin-top: 28px;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 500;
+    font-size: 18px;
+    letter-spacing: 0.15em;
+    color: var(--off-white);
+    text-transform: uppercase;
+  }
+  .tagline .accent { color: var(--primary-lime); }
+
+  .stat-strip {
+    margin: 48px auto 40px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    max-width: 720px;
+    background: var(--secondary-violet);
+    border: 2px solid var(--secondary-violet);
+  }
+  .stat-box {
+    background: var(--secondary-black);
+    padding: 18px 10px;
+    text-align: center;
+  }
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--dim);
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--primary-lime);
+    line-height: 1;
+  }
+
+  .cta {
+    margin-top: 40px;
+  }
+
+  .btn {
+    background: var(--primary-orange);
+    color: var(--secondary-black);
+    border: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 0.08em;
+    padding: 20px 52px;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    box-shadow: 6px 6px 0 var(--secondary-violet);
+    border: 2px solid var(--secondary-black);
+  }
+  .btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 8px 8px 0 var(--secondary-violet);
+  }
+  .btn:active {
+    transform: translate(3px, 3px);
+    box-shadow: 2px 2px 0 var(--secondary-violet);
+  }
+
+  .btn.secondary {
+    background: var(--primary-lime);
+    box-shadow: 6px 6px 0 var(--primary-orange);
+  }
+  .btn.secondary:hover { box-shadow: 8px 8px 0 var(--primary-orange); }
+  .btn.secondary:active { box-shadow: 2px 2px 0 var(--primary-orange); }
+
+  .btn.ghost {
+    background: transparent;
+    color: var(--off-white);
+    box-shadow: none;
+    border: 2px solid var(--off-white);
+    font-size: 16px;
+    padding: 12px 28px;
+  }
+  .btn.ghost:hover {
+    background: var(--off-white);
+    color: var(--secondary-black);
+    transform: none;
+  }
+  .btn.ghost:active { transform: none; }
+
+  .rules-hint {
+    margin-top: 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 0.2em;
+  }
+
+  /* ===== ROUND SCREEN ===== */
+  .scorebar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 20px;
+    padding: 14px 20px;
+    background: linear-gradient(90deg, rgba(75, 0, 255, 0.4), rgba(255, 77, 19, 0.4));
+    border: 2px solid var(--off-white);
+    margin-bottom: 30px;
+    font-family: 'Bebas Neue', sans-serif;
+  }
+  .score-block {
+    display: flex;
+    flex-direction: column;
+  }
+  .score-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--off-white);
+    opacity: 0.7;
+  }
+  .score-value {
+    font-size: 38px;
+    line-height: 1;
+    color: var(--primary-lime);
+    letter-spacing: 0.05em;
+  }
+  .round-indicator {
+    text-align: center;
+    padding: 0 28px;
+    border-left: 2px dashed rgba(255,255,255,0.3);
+    border-right: 2px dashed rgba(255,255,255,0.3);
+  }
+  .round-indicator .rlabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    opacity: 0.7;
+  }
+  .round-indicator .rnum {
+    font-size: 52px;
+    line-height: 1;
+    color: var(--off-white);
+  }
+  .round-indicator .rnum .total {
+    font-size: 24px;
+    color: var(--primary-orange);
+    margin-left: 4px;
+  }
+  .timer-block { align-items: flex-end; text-align: right; }
+  .timer-block .score-value {
+    color: var(--off-white);
+    font-variant-numeric: tabular-nums;
+  }
+  .timer-block.warning .score-value { color: #ff6b35; animation: blink 0.5s infinite; }
+  .timer-block.critical .score-value { color: #ff2020; animation: blink 0.3s infinite; }
+  @keyframes blink { 50% { opacity: 0.3; } }
+
+  /* Question card */
+  .question-card {
+    background: var(--secondary-black);
+    border: 3px solid var(--off-white);
+    padding: 44px 40px 50px;
+    position: relative;
+    box-shadow: 14px 14px 0 var(--secondary-violet);
+  }
+
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    height: 40px;
+    background: var(--primary-orange);
+    border-bottom: 3px solid var(--off-white);
+  }
+
+  .category-tag {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 37px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--secondary-black);
+  }
+
+  .question-body {
+    margin-top: 30px;
+  }
+
+  .q-prompt {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(28px, 4vw, 44px);
+    line-height: 1.05;
+    color: var(--off-white);
+    margin-bottom: 16px;
+    letter-spacing: 0.01em;
+  }
+  .q-prompt .highlight { color: var(--primary-lime); }
+
+  .q-context {
+    font-family: 'Oswald', sans-serif;
+    font-size: 15px;
+    color: var(--dim);
+    letter-spacing: 0.05em;
+    margin-bottom: 34px;
+    line-height: 1.5;
+  }
+
+  .unit-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--primary-orange);
+    letter-spacing: 0.2em;
+    margin-bottom: 12px;
+  }
+
+  /* Guess input */
+  .guess-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 14px;
+    align-items: stretch;
+  }
+  @media (max-width: 600px) {
+    .guess-row { grid-template-columns: 1fr; }
+  }
+
+  .guess-input {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid var(--off-white);
+    padding: 18px 22px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    color: var(--primary-lime);
+    letter-spacing: 0.05em;
+    outline: none;
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+  }
+  .guess-input::-webkit-outer-spin-button,
+  .guess-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .guess-input::placeholder {
+    color: rgba(245, 245, 240, 0.25);
+  }
+  .guess-input:focus {
+    border-color: var(--primary-lime);
+  }
+
+  /* ===== REVEAL SCREEN ===== */
+  .reveal-wrap {
+    text-align: center;
+    padding: 30px 0;
+  }
+
+  .verdict {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(64px, 11vw, 140px);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    margin-bottom: 10px;
+  }
+
+  .verdict.bullseye { color: var(--primary-lime); }
+  .verdict.close { color: var(--primary-orange); }
+  .verdict.far { color: #ff2020; }
+
+  .verdict-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.25em;
+    color: var(--off-white);
+    margin-bottom: 40px;
+  }
+
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    max-width: 760px;
+    margin: 0 auto 36px;
+  }
+  @media (max-width: 600px) {
+    .compare-grid { grid-template-columns: 1fr; }
+  }
+
+  .compare-cell {
+    background: rgba(255,255,255,0.04);
+    border: 2px solid rgba(255,255,255,0.3);
+    padding: 24px 18px;
+  }
+  .compare-cell.actual { border-color: var(--primary-lime); background: rgba(208, 242, 85, 0.08); }
+  .compare-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--dim);
+    margin-bottom: 10px;
+  }
+  .compare-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    line-height: 1;
+    color: var(--off-white);
+  }
+  .compare-cell.actual .compare-value { color: var(--primary-lime); }
+
+  .points-earned {
+    display: inline-block;
+    background: var(--primary-orange);
+    color: var(--secondary-black);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    padding: 12px 32px;
+    letter-spacing: 0.08em;
+    margin-bottom: 30px;
+    border: 2px solid var(--secondary-black);
+    box-shadow: 6px 6px 0 var(--secondary-violet);
+  }
+  .points-earned.zero {
+    background: var(--secondary-black);
+    color: var(--off-white);
+    border-color: var(--off-white);
+    box-shadow: 6px 6px 0 #ff2020;
+  }
+
+  .fact-box {
+    max-width: 720px;
+    margin: 0 auto 30px;
+    padding: 22px 26px;
+    background: rgba(75, 0, 255, 0.15);
+    border-left: 6px solid var(--secondary-violet);
+    text-align: left;
+  }
+  .fact-box .fact-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--primary-lime);
+    margin-bottom: 8px;
+  }
+  .fact-box .fact-text {
+    font-family: 'Oswald', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--off-white);
+  }
+
+  /* ===== END SCREEN ===== */
+  .final-wrap {
+    text-align: center;
+    padding: 30px 0;
+  }
+
+  .final-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(70px, 13vw, 170px);
+    line-height: 0.9;
+    color: var(--primary-lime);
+    letter-spacing: 0.02em;
+    margin-bottom: 12px;
+  }
+
+  .final-score-block {
+    margin: 40px auto;
+    max-width: 500px;
+    padding: 40px 20px;
+    background: var(--primary-orange);
+    color: var(--secondary-black);
+    border: 3px solid var(--off-white);
+    box-shadow: 14px 14px 0 var(--secondary-violet);
+  }
+  .final-score-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.3em;
+    margin-bottom: 10px;
+  }
+  .final-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 140px;
+    line-height: 1;
+    color: var(--secondary-black);
+  }
+  .final-score .slash { color: var(--secondary-violet); }
+  .final-score .max { color: var(--secondary-violet); font-size: 80px; }
+
+  .rank-badge {
+    display: inline-block;
+    background: var(--secondary-violet);
+    color: var(--off-white);
+    padding: 14px 30px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 0.1em;
+    margin-bottom: 30px;
+    border: 2px solid var(--off-white);
+  }
+
+  .breakdown {
+    max-width: 760px;
+    margin: 30px auto;
+    text-align: left;
+  }
+  .breakdown h3 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.3em;
+    color: var(--primary-orange);
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .breakdown-row {
+    display: grid;
+    grid-template-columns: 40px 1fr auto auto;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 18px;
+    border-bottom: 1px dashed rgba(255,255,255,0.15);
+    font-family: 'Oswald', sans-serif;
+    font-size: 15px;
+  }
+  .breakdown-row .r-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--primary-orange);
+  }
+  .breakdown-row .r-topic {
+    color: var(--off-white);
+    letter-spacing: 0.03em;
+  }
+  .breakdown-row .r-guess {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--dim);
+  }
+  .breakdown-row .r-pts {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--primary-lime);
+    min-width: 50px;
+    text-align: right;
+  }
+  .breakdown-row .r-pts.zero { color: #ff6b35; }
+
+  .action-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px 0 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--dim);
+  }
+
+  /* Dramatic reveal animation */
+  @keyframes reveal-shake {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-4px, 2px); }
+    20% { transform: translate(4px, -2px); }
+    30% { transform: translate(-3px, 3px); }
+    40% { transform: translate(3px, -3px); }
+    50% { transform: translate(-2px, 1px); }
+    60% { transform: translate(2px, -1px); }
+  }
+  .shake { animation: reveal-shake 0.5s ease-out; }
+
+  @keyframes zoom-punch {
+    0%   { transform: scale(0.4); opacity: 0; }
+    60%  { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  .punch { animation: zoom-punch 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+
+  /* Brand stamp */
+  .brand-stamp {
+    position: absolute;
+    top: 60px;
+    right: 30px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--primary-lime);
+    opacity: 0.5;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+  }
+
+</style>
+</head>
+<body>
+
+<!-- Ticker tape -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span>PINE LABS Q2 FY26 LIVE</span>
+    <span>REVENUE ₹650 CR (+18% YoY)</span>
+    <span>PLATFORM GTV $48.2 BILLION</span>
+    <span>1.9 BN TRANSACTIONS</span>
+    <span>PAT ₹6 CR — SECOND STRAIGHT POSITIVE QUARTER</span>
+    <span>ADJ EBITDA ₹122 CR (+62% YoY)</span>
+    <span>LISTED ON NSE &amp; BSE — 14 NOV 2025</span>
+    <span>1M+ MERCHANTS</span>
+    <span>LIVE IN 20 COUNTRIES</span>
+    <span>PINE LABS Q2 FY26 LIVE</span>
+    <span>REVENUE ₹650 CR (+18% YoY)</span>
+    <span>PLATFORM GTV $48.2 BILLION</span>
+    <span>1.9 BN TRANSACTIONS</span>
+  </div>
+</div>
+
+<div class="live-badge">
+  <span class="live-dot"></span>
+  LIVE
+</div>
+
+<div class="game-wrap">
+
+  <!-- ============ START SCREEN ============ -->
+  <section class="screen active" id="start-screen">
+    <div class="hero">
+      <div class="presenter-line">PINE LABS LEADERSHIP OFFSITE PRESENTS</div>
+
+      <h1 class="title">
+        OVERDRIVE
+        <span class="strike"></span>
+      </h1>
+
+      <div class="tagline">
+        The <span class="accent">Price-is-Right</span> of Pine Labs &mdash; How Well Do You Know Your Company?
+      </div>
+
+      <div class="stat-strip">
+        <div class="stat-box">
+          <div class="stat-label">ROUNDS</div>
+          <div class="stat-value">07</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">TIME / ROUND</div>
+          <div class="stat-value">30s</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">MAX SCORE</div>
+          <div class="stat-value">700</div>
+        </div>
+      </div>
+
+      <div class="cta">
+        <button class="btn" id="start-btn">► KICK OFF</button>
+      </div>
+
+      <div class="rules-hint">
+        BALLPARK GUESSES WIN &middot; 100 PTS IF WITHIN 10% &middot; POINTS EVEN FOR ROUGH ESTIMATES
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ROUND SCREEN ============ -->
+  <section class="screen" id="round-screen">
+    <div class="scorebar">
+      <div class="score-block">
+        <div class="score-label">YOUR SCORE</div>
+        <div class="score-value" id="current-score">000</div>
+      </div>
+      <div class="round-indicator">
+        <div class="rlabel">ROUND</div>
+        <div class="rnum"><span id="round-num">1</span><span class="total">/7</span></div>
+      </div>
+      <div class="score-block timer-block" id="timer-block">
+        <div class="score-label">TIME LEFT</div>
+        <div class="score-value" id="timer">30</div>
+      </div>
+    </div>
+
+    <div class="question-card">
+      <div class="category-tag">
+        <span id="category">◆ FINANCIAL</span>
+        <span id="difficulty">DIFFICULTY &mdash; &mdash; &mdash;</span>
+      </div>
+
+      <div class="question-body">
+        <div class="q-prompt" id="q-prompt"></div>
+        <div class="q-context" id="q-context"></div>
+
+        <div class="unit-hint" id="unit-hint">ENTER YOUR GUESS</div>
+        <div class="guess-row">
+          <input type="number" step="any" class="guess-input" id="guess-input" placeholder="0" autocomplete="off" />
+          <button class="btn secondary" id="lock-btn">LOCK IT IN</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ REVEAL SCREEN ============ -->
+  <section class="screen" id="reveal-screen">
+    <div class="reveal-wrap">
+      <div class="verdict punch" id="verdict">CLOSE!</div>
+      <div class="verdict-sub" id="verdict-sub">OFF BY 15%</div>
+
+      <div class="compare-grid">
+        <div class="compare-cell">
+          <div class="compare-label">YOUR GUESS</div>
+          <div class="compare-value" id="your-guess">—</div>
+        </div>
+        <div class="compare-cell actual">
+          <div class="compare-label">ACTUAL</div>
+          <div class="compare-value" id="actual-value">—</div>
+        </div>
+      </div>
+
+      <div class="points-earned" id="points-earned">+0 PTS</div>
+
+      <div class="fact-box">
+        <div class="fact-label">◆ DID YOU KNOW</div>
+        <div class="fact-text" id="fact-text"></div>
+      </div>
+
+      <button class="btn" id="next-btn">NEXT ROUND ►</button>
+    </div>
+  </section>
+
+  <!-- ============ END SCREEN ============ -->
+  <section class="screen" id="end-screen">
+    <div class="final-wrap">
+      <div class="final-title">GAME OVER</div>
+
+      <div class="final-score-block">
+        <div class="final-score-label">FINAL SCORE</div>
+        <div class="final-score">
+          <span id="final-score-num">0</span><span class="slash"> / </span><span class="max">700</span>
+        </div>
+      </div>
+
+      <div class="rank-badge" id="rank-badge">ROOKIE</div>
+
+      <div class="breakdown">
+        <h3>◆ ROUND BREAKDOWN ◆</h3>
+        <div id="breakdown-list"></div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn secondary" id="play-again-btn">PLAY AGAIN</button>
+        <button class="btn ghost" id="share-btn">SHARE RESULT</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    OVERDRIVE &middot; BUILT FOR PINE LABS LEADERSHIP OFFSITE &middot; DATA FROM Q2 FY26 SHAREHOLDER LETTER
+  </div>
+</div>
+
+<script>
+  // ============ GAME DATA ============
+  // All figures sourced from Pine Labs Q2 FY26 Shareholder Letter (3 Dec 2025)
+  const QUESTIONS = [
+    {
+      category: "◆ PLATFORM SCALE",
+      difficulty: "◆ ◇ ◇",
+      prompt: "What was Pine Labs' <span class='highlight'>Platform GTV</span> in Q2 FY26 (in ₹ thousand crores)?",
+      context: "This is the total transaction value processed across all Pine Labs platforms during the quarter. Grew 92% YoY.",
+      unitHint: "ENTER VALUE IN ₹ THOUSAND CRORES (e.g. 300)",
+      actual: 424,
+      display: "₹424K Cr",
+      tolerance: 424,
+      fact: "Pine Labs' Platform GTV grew 92% YoY to ₹424 thousand crore (~$48.2 billion) in Q2 FY26 — nearly double the ₹221K Cr processed in Q2 FY25."
+    },
+    {
+      category: "◆ REVENUE",
+      difficulty: "◆ ◆ ◇",
+      prompt: "What was Pine Labs' <span class='highlight'>Revenue from Operations</span> in Q2 FY26? (in ₹ crores)",
+      context: "This grew 18% YoY, powered by Issuing, Affordability and Online businesses all growing 30%+.",
+      unitHint: "ENTER VALUE IN ₹ CRORES (e.g. 500)",
+      actual: 650,
+      display: "₹650 Cr",
+      tolerance: 650,
+      fact: "Revenue from Operations hit ₹650 Cr in Q2 FY26 — 8% higher than last year's peak festive quarter (Q3 FY25), despite Q2 typically being a non-seasonal quarter."
+    },
+    {
+      category: "◆ PROFITABILITY",
+      difficulty: "◆ ◆ ◆",
+      prompt: "What was Pine Labs' <span class='highlight'>Adjusted EBITDA</span> in Q2 FY26? (in ₹ crores)",
+      context: "Grew 62% YoY. Margin expanded from 14% to 19%. Every ₹100 of contribution margin now drives ~₹50-57 of this.",
+      unitHint: "ENTER VALUE IN ₹ CRORES (e.g. 100)",
+      actual: 122,
+      display: "₹122 Cr",
+      tolerance: 122,
+      fact: "Adjusted EBITDA of ₹122 Cr in Q2 FY26 represents strong operating leverage — Adjusted EBITDA margin has expanded from 9% in FY22 → 16% in FY25 → 19% in Q2 FY26."
+    },
+    {
+      category: "◆ TRANSACTIONS",
+      difficulty: "◆ ◆ ◇",
+      prompt: "How many <span class='highlight'>transactions</span> did Pine Labs process in Q2 FY26? (in billions)",
+      context: "Across all product offerings combined — payments, issuing, fintech infrastructure. Grew 44% YoY.",
+      unitHint: "ENTER VALUE IN BILLIONS (e.g. 2.5)",
+      actual: 1.9,
+      display: "1.9 Billion",
+      tolerance: 1.9,
+      fact: "Pine Labs processed 1.9 billion transactions in Q2 FY26 alone — up 44% YoY. Fintech Infrastructure transactions alone jumped from 152M to 275M (+81%) YoY."
+    },
+    {
+      category: "◆ MERCHANTS",
+      difficulty: "◆ ◇ ◇",
+      prompt: "In Q2 FY26, Pine Labs crossed a major <span class='highlight'>merchant milestone</span>. How many merchants? (in thousands)",
+      context: "A landmark moment — unique merchants using at least one Pine Labs product. Grew 29% YoY.",
+      unitHint: "ENTER VALUE IN THOUSANDS (e.g. 900 for 900,000)",
+      actual: 1035,
+      display: "1,035K (1M+)",
+      tolerance: 1035,
+      fact: "Pine Labs crossed 1 million merchants in Q2 FY26 — a huge symbolic milestone, with the count reaching 1,035K (up from 805K in Q2 FY25)."
+    },
+    {
+      category: "◆ INTERNATIONAL",
+      difficulty: "◆ ◆ ◆",
+      prompt: "With how many <span class='highlight'>global airlines</span> is Pine Labs live today?",
+      context: "Part of the international expansion story. Pine Labs is live across all continents in the airline category.",
+      unitHint: "ENTER A NUMBER",
+      actual: 18,
+      display: "18 Airlines",
+      tolerance: 18,
+      fact: "Pine Labs is live with 18 global airlines and has clients in 20 countries. International business grew ~30% YoY to ₹108 Cr (from ₹83 Cr in Q2 FY25)."
+    },
+    {
+      category: "◆ PREPAID CARDS",
+      difficulty: "◆ ◆ ◇",
+      prompt: "How many <span class='highlight'>prepaid cards</span> did Pine Labs issue in Q2 FY26? (in millions)",
+      context: "Pine Labs is the market leader in India's prepaid segment, which is growing at a 26% CAGR.",
+      unitHint: "ENTER VALUE IN MILLIONS (e.g. 200)",
+      actual: 263,
+      display: "263 Million",
+      tolerance: 263,
+      fact: "Pine Labs issued 263 million prepaid cards in Q2 FY26 alone. The Issuing & Acquiring Platform revenue grew 33% YoY to ₹210 Cr — the fastest-growing segment."
+    }
+  ];
+
+  // ============ GAME STATE ============
+  let state = {
+    round: 0,
+    score: 0,
+    results: [],  // { question, guess, points, pctOff }
+    timer: null,
+    timeLeft: 30
+  };
+
+  // ============ AUDIO (Web Audio API synth) ============
+  const AudioEngine = (() => {
+    let ctx = null;
+    function ensure() {
+      if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+      return ctx;
+    }
+    function beep(freq, duration, type = 'sine', vol = 0.15) {
+      const c = ensure();
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.type = type;
+      o.frequency.value = freq;
+      o.connect(g);
+      g.connect(c.destination);
+      const now = c.currentTime;
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(vol, now + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      o.start(now);
+      o.stop(now + duration + 0.02);
+    }
+    return {
+      tick() { try { beep(900, 0.04, 'square', 0.04); } catch(e){} },
+      lockIn() {
+        try {
+          beep(440, 0.08, 'square', 0.1);
+          setTimeout(() => beep(660, 0.12, 'square', 0.1), 80);
+        } catch(e){}
+      },
+      bullseye() {
+        try {
+          // Ascending fanfare
+          beep(523, 0.12, 'triangle', 0.15);           // C5
+          setTimeout(() => beep(659, 0.12, 'triangle', 0.15), 120);  // E5
+          setTimeout(() => beep(784, 0.12, 'triangle', 0.15), 240);  // G5
+          setTimeout(() => beep(1047, 0.3, 'triangle', 0.18), 360);  // C6
+        } catch(e){}
+      },
+      close() {
+        try {
+          beep(587, 0.1, 'triangle', 0.13);  // D5
+          setTimeout(() => beep(784, 0.2, 'triangle', 0.13), 100);  // G5
+        } catch(e){}
+      },
+      far() {
+        try {
+          beep(200, 0.3, 'sawtooth', 0.12);
+          setTimeout(() => beep(150, 0.4, 'sawtooth', 0.12), 180);
+        } catch(e){}
+      },
+      gameEnd() {
+        try {
+          // Victory fanfare
+          const notes = [523, 659, 784, 1047, 1319];
+          notes.forEach((f, i) => setTimeout(() => beep(f, 0.18, 'triangle', 0.15), i * 140));
+        } catch(e){}
+      },
+      countdownWarn() {
+        try { beep(800, 0.08, 'square', 0.08); } catch(e){}
+      }
+    };
+  })();
+
+  // ============ SCREEN MANAGEMENT ============
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ============ TIMER ============
+  function startTimer() {
+    state.timeLeft = 30;
+    const timerEl = document.getElementById('timer');
+    const timerBlock = document.getElementById('timer-block');
+    timerEl.textContent = state.timeLeft;
+    timerBlock.classList.remove('warning', 'critical');
+
+    state.timer = setInterval(() => {
+      state.timeLeft--;
+      timerEl.textContent = state.timeLeft;
+
+      if (state.timeLeft <= 10 && state.timeLeft > 5) {
+        timerBlock.classList.add('warning');
+        timerBlock.classList.remove('critical');
+        AudioEngine.countdownWarn();
+      } else if (state.timeLeft <= 5 && state.timeLeft > 0) {
+        timerBlock.classList.add('critical');
+        AudioEngine.countdownWarn();
+      }
+
+      if (state.timeLeft <= 0) {
+        clearInterval(state.timer);
+        lockInGuess(true);  // auto-lock on timeout
+      }
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if (state.timer) {
+      clearInterval(state.timer);
+      state.timer = null;
+    }
+  }
+
+  // ============ ROUND LOGIC ============
+  function loadRound() {
+    const q = QUESTIONS[state.round];
+    document.getElementById('round-num').textContent = state.round + 1;
+    document.getElementById('current-score').textContent = state.score.toString().padStart(3, '0');
+    document.getElementById('category').textContent = q.category;
+    document.getElementById('difficulty').textContent = 'DIFF ' + q.difficulty;
+    document.getElementById('q-prompt').innerHTML = q.prompt;
+    document.getElementById('q-context').textContent = q.context;
+    document.getElementById('unit-hint').textContent = q.unitHint;
+
+    const input = document.getElementById('guess-input');
+    input.value = '';
+    input.disabled = false;
+    document.getElementById('lock-btn').disabled = false;
+    input.focus();
+
+    showScreen('round-screen');
+    startTimer();
+  }
+
+  function calculatePoints(guess, actual) {
+    if (guess === null || guess === undefined || isNaN(guess)) return { points: 0, pctOff: 100, verdict: 'miss' };
+    if (actual === 0) return { points: guess === 0 ? 100 : 0, pctOff: guess === 0 ? 0 : 100, verdict: guess === 0 ? 'bullseye' : 'far' };
+
+    const diff = Math.abs(guess - actual);
+    const pctOff = (diff / Math.abs(actual)) * 100;
+
+    // Scoring tiers — ballpark friendly
+    let points, verdict;
+    if (pctOff <= 10)      { points = 100; verdict = 'bullseye'; }   // In the ballpark
+    else if (pctOff <= 20) { points = 85;  verdict = 'bullseye'; }   // Warm
+    else if (pctOff <= 35) { points = 70;  verdict = 'close'; }      // Reasonable shout
+    else if (pctOff <= 50) { points = 50;  verdict = 'close'; }      // Rough guess
+    else if (pctOff <= 75) { points = 30;  verdict = 'close'; }      // Order of magnitude right
+    else if (pctOff <= 100){ points = 15;  verdict = 'far'; }        // Wide miss but on the field
+    else                    { points = 0;   verdict = 'far'; }        // Out of the stadium
+
+    return { points, pctOff, verdict };
+  }
+
+  function lockInGuess(isTimeout = false) {
+    stopTimer();
+    const input = document.getElementById('guess-input');
+    const lockBtn = document.getElementById('lock-btn');
+    const q = QUESTIONS[state.round];
+
+    const rawGuess = input.value.trim();
+    const guess = rawGuess === '' ? null : parseFloat(rawGuess);
+
+    input.disabled = true;
+    lockBtn.disabled = true;
+
+    if (!isTimeout) AudioEngine.lockIn();
+
+    const result = calculatePoints(guess, q.actual);
+    state.score += result.points;
+    state.results.push({
+      question: q,
+      guess: guess,
+      points: result.points,
+      pctOff: result.pctOff,
+      verdict: result.verdict,
+      timedOut: isTimeout && (guess === null)
+    });
+
+    setTimeout(() => showReveal(result, guess, q), 400);
+  }
+
+  function showReveal(result, guess, q) {
+    const verdictEl = document.getElementById('verdict');
+    const verdictSubEl = document.getElementById('verdict-sub');
+    const yourGuessEl = document.getElementById('your-guess');
+    const actualEl = document.getElementById('actual-value');
+    const pointsEl = document.getElementById('points-earned');
+    const factEl = document.getElementById('fact-text');
+
+    verdictEl.classList.remove('bullseye', 'close', 'far');
+
+    if (result.verdict === 'bullseye') {
+      verdictEl.textContent = result.pctOff <= 10 ? 'IN THE BALLPARK!' : 'WARM!';
+      verdictEl.classList.add('bullseye');
+      verdictSubEl.textContent = result.pctOff < 1 ? 'DEAD ON. UNREAL.' : `OFF BY ${result.pctOff.toFixed(1)}%`;
+      AudioEngine.bullseye();
+    } else if (result.verdict === 'close') {
+      verdictEl.textContent = 'NOT BAD!';
+      verdictEl.classList.add('close');
+      verdictSubEl.textContent = `OFF BY ${result.pctOff.toFixed(0)}%`;
+      AudioEngine.close();
+    } else {
+      verdictEl.textContent = guess === null ? 'NO GUESS' : 'WAY OFF';
+      verdictEl.classList.add('far');
+      verdictSubEl.textContent = guess === null ? 'TIME RAN OUT' : `OFF BY ${result.pctOff.toFixed(0)}%`;
+      AudioEngine.far();
+    }
+
+    yourGuessEl.textContent = guess === null ? '—' : formatNumber(guess);
+    actualEl.textContent = q.display;
+
+    pointsEl.textContent = `+${result.points} PTS`;
+    pointsEl.classList.toggle('zero', result.points === 0);
+
+    factEl.textContent = q.fact;
+
+    // Reset animation by toggling class
+    verdictEl.classList.remove('punch');
+    void verdictEl.offsetWidth;
+    verdictEl.classList.add('punch');
+
+    showScreen('reveal-screen');
+  }
+
+  function formatNumber(n) {
+    if (Number.isInteger(n)) return n.toLocaleString('en-IN');
+    return n.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+  }
+
+  function nextRound() {
+    state.round++;
+    if (state.round >= QUESTIONS.length) {
+      endGame();
+    } else {
+      loadRound();
+    }
+  }
+
+  // ============ END GAME ============
+  function getRank(score) {
+    const pct = score / 700;
+    if (pct >= 0.90) return { label: 'PINE LABS MVP', color: 'var(--primary-lime)' };
+    if (pct >= 0.78) return { label: 'ALL-STAR', color: 'var(--primary-lime)' };
+    if (pct >= 0.65) return { label: 'STARTING LINEUP', color: 'var(--primary-orange)' };
+    if (pct >= 0.50) return { label: 'BENCH PLAYER', color: 'var(--primary-orange)' };
+    if (pct >= 0.30) return { label: 'RESERVE SQUAD', color: 'var(--off-white)' };
+    return { label: 'ROOKIE — NEEDS MORE COFFEE', color: 'var(--off-white)' };
+  }
+
+  function endGame() {
+    AudioEngine.gameEnd();
+    document.getElementById('final-score-num').textContent = state.score;
+
+    const rank = getRank(state.score);
+    const rankBadge = document.getElementById('rank-badge');
+    rankBadge.textContent = rank.label;
+
+    // Build breakdown
+    const listEl = document.getElementById('breakdown-list');
+    listEl.innerHTML = '';
+    state.results.forEach((r, i) => {
+      const row = document.createElement('div');
+      row.className = 'breakdown-row';
+      const topic = r.question.category.replace('◆ ', '');
+      const guessText = r.guess === null ? 'No guess' : formatNumber(r.guess);
+      const actualText = r.question.display;
+      row.innerHTML = `
+        <div class="r-num">0${i+1}</div>
+        <div class="r-topic">${topic}<br><span style="font-size:11px; color: var(--dim); font-family: 'JetBrains Mono', monospace;">GUESS: ${guessText} &middot; ACTUAL: ${actualText}</span></div>
+        <div class="r-guess"></div>
+        <div class="r-pts ${r.points === 0 ? 'zero' : ''}">${r.points}</div>
+      `;
+      listEl.appendChild(row);
+    });
+
+    showScreen('end-screen');
+  }
+
+  // ============ BUTTONS ============
+  document.getElementById('start-btn').addEventListener('click', () => {
+    // Initialize audio context on user gesture
+    try { AudioEngine.tick(); } catch(e) {}
+    state = { round: 0, score: 0, results: [], timer: null, timeLeft: 30 };
+    loadRound();
+  });
+
+  document.getElementById('lock-btn').addEventListener('click', () => lockInGuess(false));
+
+  document.getElementById('guess-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') lockInGuess(false);
+  });
+
+  document.getElementById('next-btn').addEventListener('click', nextRound);
+
+  document.getElementById('play-again-btn').addEventListener('click', () => {
+    state = { round: 0, score: 0, results: [], timer: null, timeLeft: 30 };
+    loadRound();
+  });
+
+  document.getElementById('share-btn').addEventListener('click', () => {
+    const rank = getRank(state.score);
+    const text = `I scored ${state.score}/700 on OVERDRIVE — Pine Labs Edition. Rank: ${rank.label}. Can you beat me?`;
+    if (navigator.share) {
+      navigator.share({ title: 'OVERDRIVE', text }).catch(() => {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('share-btn');
+        const original = btn.textContent;
+        btn.textContent = 'COPIED TO CLIPBOARD';
+        setTimeout(() => { btn.textContent = original; }, 2000);
+      });
+    }
+  });
+
+</script>
+</body>
+</html>
